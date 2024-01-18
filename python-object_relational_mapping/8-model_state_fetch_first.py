@@ -1,15 +1,35 @@
-'''importing sqlalhemy, sys, and model_state'''
-from model_state import Base, State
-from sys import argv
+# A script that prints the first State object from the database hbtn_0e_6_usa
+import sys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from model_state import Base, State
 
-path = "mysql+mysqldb://{}:{}@localhost/{}"
-engine = create_engine(path.format(argv[1], argv[2], argv[3]))
+# Get MySQL username, password, and database name from command-line arguments
+username = sys.argv[1]
+password = sys.argv[2]
+database = sys.argv[3]
 
-Session = sessionmaker(bind = engine)
+# Define the MySQL connection URL
+connection_url = f'mysql://{username}:{password}@localhost:3306/{database}'
+
+# Create the SQLAlchemy engine
+engine = create_engine(connection_url)
+
+# Bind the engine to the Base class
+Base.metadata.bind = engine
+
+# Create a session factory
+Session = sessionmaker(bind=engine)
+
+# Create a session
 session = Session()
 
-for states in session.query(State).order_by(State.id).all():
-    print("{}: {}".format(states.id, states.name))
-session.close()
+# Retrieve the first State object based on states.id
+first_state = session.query(State).order_by(State.id.asc()).first()
+
+# Display the result
+if first_state:
+    print(f"{first_state.id}: {first_state.name}")
+else:
+    print("Nothing")
+
