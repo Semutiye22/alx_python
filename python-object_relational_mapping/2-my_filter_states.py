@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-"""Displays all values in the states table of hbtn_0e_0_usa where name matches the argument
+"""
+Displays all values in the states table of hbtn_0e_0_usa where name matches the argument.
 """
 
 import sys
@@ -19,16 +20,16 @@ def filter_states(username, password, database, state_name):
         # Create a cursor object to interact with the database
         cursor = db.cursor()
 
-        # Query states with the provided state name (case-sensitive) and display the results
-        query = "SELECT * FROM states WHERE name LIKE %s COLLATE utf8_bin ORDER BY id ASC"
-        cursor.execute(query, (state_name,))
+        # Query states with the provided state name and display the results
+        query = "SELECT * FROM states WHERE name LIKE %s ORDER BY id ASC"
+        cursor.execute(query, ('%' + state_name + '%',))
         results = cursor.fetchall()
 
         if not results:
-            print("No record found.")
-        else:
-            for row in results:
-                print(row)
+            print("Nothing")
+
+        for row in results:
+            print(row)
 
     except MySQLdb.Error as e:
         print("Error: {}".format(e))
@@ -51,20 +52,6 @@ if name == "__main__":
 
     # Run the filter_states function with the provided arguments
     filter_states(username, password, database, state_name)
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
