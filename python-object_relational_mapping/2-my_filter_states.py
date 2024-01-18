@@ -5,39 +5,52 @@
 import sys
 import MySQLdb
 
+def filter_states(username, password, database, state_name):
+    try:
+        # Connect to MySQL server
+        db = MySQLdb.connect(
+            host="localhost",
+            user=username,
+            passwd=password,
+            db=database,
+            port=3306
+        )
+
+        # Create a cursor object to interact with the database
+        cursor = db.cursor()
+
+        # Query states with the provided state name and display the results
+        query = "SELECT * FROM states WHERE name = %s ORDER BY id ASC"
+        cursor.execute(query, (state_name,))
+        results = cursor.fetchall()
+
+        if not results:
+            print("No record found.")
+        else:
+            for row in results:
+                print(row)
+
+    except MySQLdb.Error as e:
+        print("Error: {}".format(e))
+
+    finally:
+        # Close the cursor and database connection
+        if cursor:
+            cursor.close()
+        if db:
+            db.close()
+
 if name == "__main__":
     # Check if the correct number of arguments is provided
     if len(sys.argv) != 5:
         print("Usage: {} <username> <password> <database> <state_name>".format(sys.argv[0]))
         sys.exit(1)
 
-    # Connect to MySQL server
-    db = MySQLdb.connect(
-        host="localhost",
-        user=sys.argv[1],
-        passwd=sys.argv[2],
-        db=sys.argv[3],
-        port=3306
-    )
+    # Extract arguments
+    username, password, database, state_name = sys.argv[1:]
 
-    # Create a cursor object to interact with the database
-    cursor = db.cursor()
-
-    # Query states with the provided state name and display the results
-    query = "SELECT * FROM states WHERE name = '{}' ORDER BY id ASC".format(sys.argv[4])
-    cursor.execute(query)
-    results = cursor.fetchall()
-    for row in results:
-        print(row)
-
-    # Close the cursor and database connection
-    cursor.close()
-    db.close()
-
-
-
-
-
+    # Run the filter_states function with the provided arguments
+    filter_states(username, password, database, state_name)
 
 
 
