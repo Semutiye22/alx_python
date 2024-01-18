@@ -1,27 +1,23 @@
-#!/usr/bin/python3
+#import MySQLdb & sys
 import MySQLdb
-import sys
+from sys import argv
 
-# Extract command line arguments
-mysql_user = sys.argv[1]
-mysql_password = sys.argv[2]
-database_name = sys.argv[3]
+#connecting to mysqldb
+db = MySQLdb.connect(user=argv[1], passwd=argv[2], db=argv[3])
 
-# Connect to MySQL server
-db = MySQLdb.connect(host="localhost", port=3306, user=mysql_user, passwd=mysql_password, db=database_name)
+#getting a cursor 
+cur = db.cursor()
 
-# Create a cursor object to interact with the database
-cursor = db.cursor()
+# executing a script that lists all states with a name starting with N
+cur.execute("SELECT * FROM states WHERE name LIKE BINARY 'N%' ORDER BY states.id ASC")
 
-# Define and execute the SQL query
-query = "SELECT * FROM states WHERE name LIKE 'N%' ORDER BY id ASC;"
-cursor.execute(query)
 
-# Fetch all the rows and print the results
-results = cursor.fetchall()
-for row in results:
-    print(row)
+#printing result
+myresult = cur.fetchall()
+for state in myresult:
+  print(state)
 
-# Close the cursor and database connection
-cursor.close()
+
+# Closing all cursors and databases
+cur.close()
 db.close()

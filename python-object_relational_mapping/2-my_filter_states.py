@@ -1,57 +1,25 @@
-#!/usr/bin/python3
-"""
-Displays all values in the states table of hbtn_0e_0_usa where name matches the argument.
-"""
-
-import sys
+#import MySQLdb & sys
 import MySQLdb
+from sys import argv
 
-def filter_states(username, password, database, state_name):
-    try:
-        # Connect to MySQL server
-        db = MySQLdb.connect(
-            host="localhost",
-            user=username,
-            passwd=password,
-            db=database,
-            port=3306
-        )
+#connecting to mysqldb
+db = MySQLdb.connect(user=argv[1], passwd=argv[2], db=argv[3])
 
-        # Create a cursor object to interact with the database
-        cursor = db.cursor()
+#getting a cursor 
+cur = db.cursor()
 
-        # Query states with the provided state name and display the results
-        query = "SELECT * FROM states WHERE name LIKE %s ORDER BY id ASC"
-        cursor.execute(query, ('%' + state_name + '%',))
-        results = cursor.fetchall()
+#executing a script that takes in an argument and displays all values in the states table
+cur.execute("SELECT * FROM states WHERE name LIKE BINARY '{}' ORDER BY states.id ASC".format(argv[4]))
 
-        if not results:
-            print("Nothing")
+#printing result
+myresult = cur.fetchall()
+for state in myresult:
+  print(state)
 
-        for row in results:
-            print(row)
 
-    except MySQLdb.Error as e:
-        print("Error: {}".format(e))
-
-    finally:
-        # Close the cursor and database connection
-        if cursor:
-            cursor.close()
-        if db:
-            db.close()
-
-if name == "__main__":
-    # Check if the correct number of arguments is provided
-    if len(sys.argv) != 5:
-        print("Usage: {} <username> <password> <database> <state_name>".format(sys.argv[0]))
-        sys.exit(1)
-
-    # Extract arguments
-    username, password, database, state_name = sys.argv[1:]
-
-    # Run the filter_states function with the provided arguments
-    filter_states(username, password, database, state_name)
+# Closing all cursors and databases
+cur.close()
+db.close()
 
 
 
