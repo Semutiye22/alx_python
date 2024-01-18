@@ -19,8 +19,8 @@ def filter_states(username, password, database, state_name):
         # Create a cursor object to interact with the database
         cursor = db.cursor()
 
-        # Query states with the provided state name and display the results
-        query = "SELECT * FROM states WHERE name = %s ORDER BY id ASC"
+        # Query states with the provided state name (case-sensitive) and display the results
+        query = "SELECT * FROM states WHERE name LIKE %s COLLATE utf8_bin ORDER BY id ASC"
         cursor.execute(query, (state_name,))
         results = cursor.fetchall()
 
@@ -51,35 +51,7 @@ if name == "__main__":
 
     # Run the filter_states function with the provided arguments
     filter_states(username, password, database, state_name)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
 
 
 
