@@ -1,3 +1,4 @@
+#0-hello_route
 """
 0-hello_route.py - Simple Flask web application.
 
@@ -5,14 +6,26 @@ This script creates a basic Flask web application with a single route that
 responds with "Hello HBNB!" when accessed at the root ("/") route.
 
 Usage:
-    - Run the script using 'python3 0-hello_route.py'.
-    - The web application will be accessible at http://0.0.0.0:5000/.
+    - Start the server: Run the script using 'python3 0-hello_route.py'.
+    - Stop the server: Press 'CTRL+C' to quit the server.
 
 Routes:
     - /: Displays "Hello HBNB!"
 
+Example:
+    - Correct output: curl 0.0.0.0:5000
+       
+        $ curl 0.0.0.0:5000
+        Hello HBNB!
+        
+    - Correct output (404): curl 0.0.0.0:5000/noroute
+       
+        $ curl 0.0.0.0:5000/noroute
+        Not Found
+        
 Requirements:
-    - Flask: Make sure to install Flask using 'pip install Flask'.
+    - Python 3.x
+    - Flask: Install using 'pip install Flask'.
 
 """
 
@@ -29,6 +42,3 @@ def hello_hbnb():
         str: The string "Hello HBNB!" as the response.
     """
     return 'Hello HBNB!'
-
-if name == '__main__':
-    app.run(host='0.0.0.0', port=5000)
