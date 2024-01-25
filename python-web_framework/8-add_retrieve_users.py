@@ -1,70 +1,47 @@
-from flask import Flask, request, render_template, flash, redirect, url_for
+# 8-add_retrieve_users.py
+
+from flask import Flask, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
-import re
-import sys
-from sqlalchemy.exc import IntegrityError
-
-# Check for command-line arguments
-if len(sys.argv) != 4:
-    print("Usage: python 8-add_retrieve_users.py <db_username> <db_password> <db_name>")
-    sys.exit(1)
-
-db_username = sys.argv[1]
-db_password = sys.argv[2]
-db_name = sys.argv[3]
-db_host = 'localhost'
 
 app = Flask(__name__)
-
-
-# code to connect to the database here
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{db_username}:{db_password}@{db_host}/{db_name}"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///alx_flask_db.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'secret_key'
 
 db = SQLAlchemy(app)
 
-
-# Defining USER Model class
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(255))
-    email = db.Column(db.String(255), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
 
-
-# Create the database tables
-def create_tables():
-    with app.app_context():
-        db.create_all()
-
-create_tables()  # This calls the function to create tables
-
-
-@app.route('/', strict_slashes=False)
-def index():
-    return "Hello, ALX Flask!"
-
-@app.route('/add_user', methods=['GET','POST'])
+# Routes for adding and retrieving users
+@app.route('/add_user', methods=['GET', 'POST'])
 def add_user():
     if request.method == 'POST':
-        name = request.form.get('name')
-        email = request.form.get('email')
-        user = User(name=name, email=email)
-        try:
-            db.session.add(user)
-            db.session.commit()
-            flash('User added successfully!', 'success')
-        except IntegrityError:
-            db.session.rollback()
-            flash('Email already exists!', 'error')
-    else:
-        return render_template('add_user.html')
-    # return redirect(url_for('index'))
+        name = request.form['name']
+        email = request.form['email']
 
-@app.route('/users', methods=['GET'])
-def users():
+        if not name or not email:
+            flash("Name and email are required fields.", 'error')
+        else:
+            existing_user = User.query.filter_by(email=email).first()
+            if existing_user:
+                flash("Email already taken. Please choose a different email.", 'error')
+            else:
+                new_user = User(name=name, email=email)
+                db.session.add(new_user)
+                db.session.commit()
+                flash("User added successfully!", 'success')
+                return redirect('/users')
+
+    return render_template('add_user.html')
+
+@app.route('/users')
+def show_users():
     users = User.query.all()
-    return render_template('8-users.html', users=users)
-        
-
+    return render_template('users.html', users=users)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    db.create_all()
+    app.run(host='0.0.0.0', port=5000)
