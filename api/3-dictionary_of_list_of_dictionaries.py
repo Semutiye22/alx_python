@@ -17,10 +17,12 @@ def fetch_tasks():
         tasks_response = requests.get(f"{base_url}/todos?userId={user_id}")
         if tasks_response.status_code == 200:
             tasks_data = tasks_response.json()
-            tasks = [{"task": task["title"], "completed": task["completed"], "username": username} for task in tasks_data]
-            tasks_by_user[user_id] = tasks
+            tasks = [{"task": task["title"], "completed": task["completed"]} for task in tasks_data]
+            tasks_by_user[user_id] = {"username": username, "tasks": tasks}
         else:
             print(f"Failed to fetch tasks for user {user_id} ({username})")
+            # Initialize an empty list for the user if no tasks are found
+            tasks_by_user[user_id] = {"username": username, "tasks": []}
 
     return tasks_by_user
 
