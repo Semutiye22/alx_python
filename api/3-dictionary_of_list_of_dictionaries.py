@@ -1,40 +1,47 @@
+'''importing libraries'''
+"""importing libraries"""
+# iimporting libraries
 import json
 import requests
+import sys
 
-def fetch_tasks():
+def get_all_employees_todo_progress():
     base_url = "https://jsonplaceholder.typicode.com"
-    users_response = requests.get(f"{base_url}/users")
-    if users_response.status_code != 200:
-        print("Failed to fetch users. Please try again later.")
-        return None
+    users_url = f"{base_url}/users"
 
-    users_data = users_response.json()
-    tasks_by_user = {}
-
-    for user in users_data:
-        user_id = user["id"]
-        username = user["username"]
-        tasks_response = requests.get(f"{base_url}/todos?userId={user_id}")
-        if tasks_response.status_code == 200:
-            tasks_data = tasks_response.json()
-            tasks = [{"task": task["title"], "completed": task["completed"]} for task in tasks_data]
-            tasks_by_user[user_id] = {"username": username, "tasks": tasks}
-        else:
-            print(f"Failed to fetch tasks for user {user_id} ({username})")
-            # Initialize an empty list for the user if no tasks are found
-            tasks_by_user[user_id] = {"username": username, "tasks": []}
-
-    return tasks_by_user
-
-def export_to_json(data):
     try:
-        with open("todo_all_employees.json", "w") as f:
-            json.dump(data, f, indent=4)
-        print("Data exported to todo_all_employees.json successfully.")
-    except Exception as e:
-        print(f"Error occurred while writing to file: {e}")
+        users_response = requests.get(users_url)
+        users_data = users_response.json()
 
-if name == "__main__":
-    tasks = fetch_tasks()
-    if tasks:
-        export_to_json(tasks)
+        all_employees_tasks = {}
+
+        for user in users_data:
+            employee_id = user["id"]
+            todos_url = f"{base_url}/users/{employee_id}/todos"
+            todos_response = requests.get(todos_url)
+            todos_data = todos_response.json()
+
+            tasks = [
+                {
+                    "username": user["username"],
+                    "task": task["title"],
+                    "completed": task["completed"]
+                }
+                for task in todos_data
+            ]
+
+            all_employees_tasks[employee_id] = tasks
+
+        # Write the dictionary to a JSON file
+        filename = "todo_all_employees.json"
+        with open(filename, "w", encoding="utf-8") as json_file:
+            json.dump(all_employees_tasks, json_file, ensure_ascii=False, indent=4)
+
+        print(f"Data exported to {filename}")
+
+    except requests.RequestException as e:
+        print(f"Error fetching data: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    get_all_employees_todo_progress()
