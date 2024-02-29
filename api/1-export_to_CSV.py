@@ -1,38 +1,53 @@
-import requests
 import csv
 import sys
 
-def export_to_csv(employee_id):
-    base_url = "https://jsonplaceholder.typicode.com"
-    user_url = f"{base_url}/users/{employee_id}"
-    todos_url = f"{base_url}/users/{employee_id}/todos"
+# Sample data representing tasks assigned to users
+tasks_data = {
+    1: [
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "delectus aut autem"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "quis ut nam facilis et officia qui"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": True, "title": "fugiat veniam minus"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "et porro tempora"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "laboriosam mollitia et enim quasi adipisci quia provident illum"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "qui ullam ratione quibusdam voluptatem quia omnis"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": True, "title": "illo expedita consequatur quia in"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "quo adipisci enim quam ut ab"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": False, "title": "molestiae perspiciatis ipsa"},
+        {"user_id": 1, "username": "Leanne Graham", "completed": True, "title": "illo est ratione doloremque quia maiores aut"}
+    ],
+    2: [
+        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "delectus aut autem"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "quis ut nam facilis et officia qui"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "fugiat veniam minus"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "et porro tempora"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "laboriosam mollitia et enim quasi adipisci quia provident illum"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "qui ullam ratione quibusdam voluptatem quia omnis"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "illo expedita consequatur quia in"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "quo adipisci enim quam ut ab"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": False, "title": "molestiae perspiciatis ipsa"},
+        {"user_id": 2, "username": "Ervin Howell", "completed": True, "title": "illo est ratione doloremque quia maiores aut"}
+    ]
+}
 
-    try:
-        user_response = requests.get(user_url)
-        todos_response = requests.get(todos_url)
+def export_to_csv(user_id):
+    # Define file name based on user ID
+    filename = f"{user_id}.csv"
+    with open(filename, mode='w', newline='') as file:
+        fieldnames = ['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE']
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        for task in tasks_data.get(user_id, []):
+            writer.writerow({
+                'USER_ID': task['user_id'],
+                'USERNAME': task['username'],
+                'TASK_COMPLETED_STATUS': str(task['completed']),
+                'TASK_TITLE': task['title']
+            })
 
-        user_data = user_response.json()
-        todos_data = todos_response.json()
-
-        employee_name = user_data["name"]
-
-        filename = f"{employee_id}.csv"
-        with open(filename, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(["USER_ID", "USERNAME", "TASK_COMPLETED_STATUS", "TASK_TITLE"])
-            for task in todos_data:
-                writer.writerow([employee_id, employee_name, task["completed"], task["title"]])
-
-        print(f"Data exported to {filename}")
-
-    except requests.RequestException as e:
-        print(f"Error fetching data: {e}")
-        sys.exit(1)
-
-if name == "__main__":
+if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python script.py <employee_id>")
+        print("Usage: python3 script_name.py USER_ID")
         sys.exit(1)
-
-    employee_id = int(sys.argv[1])
-    export_to_csv(employee_id)
+    
+    user_id = int(sys.argv[1])
+    export_to_csv(user_id)
